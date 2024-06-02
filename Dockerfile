@@ -13,4 +13,4 @@ ENV LOG_PATH /home/logs/log.txt
 
 VOLUME /home/logs
 
-ENTRYPOINT ["sh", "-c", "echo '1\n2\n3\n' | ./_build/solver >> /home/logs/log.txt"]
+ENTRYPOINT ["sh", "-c", "echo '1\n2\n3\n' | ./_build/equasion >> /home/logs/log.txt"]
