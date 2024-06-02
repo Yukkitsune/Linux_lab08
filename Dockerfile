@@ -6,7 +6,7 @@ RUN apt install -yy gcc g++ cmake
 COPY . /solver
 WORKDIR /solver/solver_application
 
-RUN cmake -H. -B_build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=_install
+RUN cmake -H. -B_build
 RUN cmake --build _build
 
 ENV LOG_PATH /home/logs/log.txt
