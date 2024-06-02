@@ -1,15 +1,12 @@
 FROM ubuntu:latest
 
-RUN apt update
-RUN apt install -yy gcc g++ cmake
+RUN apt-get update && apt-get install -yy gcc g++ cmake
 
 COPY . /solver
 WORKDIR /solver/solver_application
 RUN rm -rf _build
-RUN cmake -H. -B_build
-RUN cmake --build _build
 
-ENV LOG_PATH /home/logs/log.txt
+RUN cmake -B _build && cmake --build _build
 
 VOLUME /home/logs
 
