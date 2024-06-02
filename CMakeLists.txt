@@ -11,11 +11,11 @@ target_include_directories(formatter_ex PUBLIC formatter_ex_lib formatter_lib he
 
 add_library(solver ${CMAKE_CURRENT_SOURCE_DIR}/solver_lib/solver.cpp)
 
-add_executable(solve ${CMAKE_CURRENT_SOURCE_DIR}/solver_application/equation.cpp)
+add_executable(master ${CMAKE_CURRENT_SOURCE_DIR}/solver_application/equation.cpp)
 
-target_link_libraries(solve formatter formatter_ex solver)
+target_link_libraries(master formatter formatter_ex solver)
 
-install(TARGETS solve
+install(TARGETS master
 RUNTIME DESTINATION bin
 )
 
