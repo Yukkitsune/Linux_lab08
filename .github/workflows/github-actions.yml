@@ -2,8 +2,10 @@ name: Test and Package bank_lib
 
 on:
   push:
-    tags:
-      - '*'
+    branches: [master]
+    tags: ['*', 'v**']
+  pull_request:
+    branches: [master]
 
 jobs:
   test:
@@ -32,66 +34,32 @@ jobs:
           coveralls-send: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  package:
+  build_packages:
     runs-on: ubuntu-latest
-    needs: test
-    if: startsWith(github.ref, 'refs/tags/')
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Configure Solver
+        run: cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -D PRINT_VERSION=${{ github.ref_name#v }}
+
+      - name: Build Solver
+        run: cmake --build ${{ github.workspace }}/build
+
+      - name: Build package
+        run: cmake --build ${{ github.workspace }}/build --target package
+
+      - name: Build source package
+        run: cmake --build ${{ github.workspace }}/build --target package_source
+
+      - name: Make a release
+        uses: ncipollo/release-action@v1.10.0
         with:
-          submodules: recursive
+          artifacts: "build/*.deb,build/*.tar.gz,build/*.zip"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+          allowUpdates: true
 
-      - name: Set up CMake
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake rpm
-
-      - name: Build project
-        run: |
-          cmake -H. -B_build
-          cmake --build _build
-
-      - name: Package project for Debian
-        run: |
-          cpack -G DEB --config _build/CPackConfig.cmake
-
-      - name: Package project for RPM
-        run: |
-          cpack -G RPM --config _build/CPackConfig.cmake
-
-      - name: Package project for MacOS
-        run: |
-          cpack -G DragNDrop --config _build/CPackConfig.cmake
-
-      - name: Upload Release Assets - Source Code
-        uses: actions/upload-release-asset@v1
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: _build/*.tar.gz
-          asset_name: source-code.tar.gz
-          asset_content_type: application/gzip
-
-      - name: Upload Release Assets - DEB
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: _build/*.deb
-          asset_name: package.deb
-          asset_content_type: application/x-debian-package
-
-      - name: Upload Release Assets - RPM
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: _build/*.rpm
-          asset_name: package.rpm
-          asset_content_type: application/x-rpm
-
-      - name: Upload Release Assets - DMG
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: _build/*.dmg
-          asset_name: package.dmg
-          asset_content_type: application/x-apple-diskimage
+          name: example
+          path: build/solver

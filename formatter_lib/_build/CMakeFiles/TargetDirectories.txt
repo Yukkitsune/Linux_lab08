@@ -1,0 +1,3 @@
+/home/kitsune/Yukkitsune/workspace/projects/lab03/homework/formatter_lib/_build/CMakeFiles/formatter.dir
+/home/kitsune/Yukkitsune/workspace/projects/lab03/homework/formatter_lib/_build/CMakeFiles/edit_cache.dir
+/home/kitsune/Yukkitsune/workspace/projects/lab03/homework/formatter_lib/_build/CMakeFiles/rebuild_cache.dir
