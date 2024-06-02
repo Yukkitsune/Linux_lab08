@@ -1,20 +1,13 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.13) 
 
-project(equation)
+project(solver)				
 
-include_directories("../formatter_ex_lib/")
-include_directories("../solver_lib/")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../formatter_ex_lib/"
+					"${CMAKE_CURRENT_SOURCE_DIR}/../solver_lib/")
 
-add_executable(equation equation.cpp)
+add_executable(equasion equation.cpp)	
 
-add_subdirectory("../formatter_ex_lib/" formatter_ex)
-add_subdirectory("../solver_lib/" solver)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../formatter_ex_lib/ formatter_ex_lib)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../solver_lib/ solver_lib)
 
-target_link_libraries(equation formatter_ex)
-target_link_libraries(equation solver)
-
-add_library(formatter_ex_lib STATIC "../formatter_ex_lib/formatter_ex.h")
-add_library(solver_lib STATIC "../solver_lib/solver.h")
-add_executable(solver_app equation.cpp) 
-target_include_directories(equation PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(equation solver_lib formatter_ex_lib formatter_lib)
+target_link_libraries(equasion formatter_ex_lib solver_lib)		
