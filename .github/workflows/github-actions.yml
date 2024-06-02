@@ -1,46 +1,113 @@
-name: Pack build
+name: C/C++ CI
 
 on:
   push:
-    branches: [master]
+    branches: [ "master" ]
   pull_request:
-    branches: [master]
+    branches: [ "master" ]
+  tags:
+    - 'v*.*.*.*'
 
-jobs: 
- build:
- 
-  runs-on: ubuntu-latest
-  permissions:
-    contents: write
+jobs:
+  build_Linux:
+    runs-on: ubuntu-latest
+    env:
+      REF: ${{ github.ref }}
 
-  steps:
-  - uses: actions/checkout@v4
-    
-  - name: Build 
-    run: |
-      cmake -H. -B_build
-      cmake --build _build
-      
-  - name: my_exe
-    run: |
-      echo -e "1\n2\n1" | ${{github.workspace}}/_build/master
- 
-  - name: package
-    run: cmake --build ${{github.workspace}}/_build --target package
-  
-  - name: package_source
-    run: cmake --build ${{github.workspace}}/_build --target package_source
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
-  - name: Artifact
-    uses: actions/upload-artifact@v4
-    with:
-        name: master
-        path: ${{github.workspace}}/_build/master
+      - name: Configure Project
+        run: cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -D PRINT_VERSION=${{ github.ref_name#v }}
 
-  - name: Make a release
-    uses: ncipollo/release-action@v1.14.0
-    with:
-        artifacts: "${{github.workspace}}/_build/*.deb,${{github.workspace}}/_build/*.tar.gz,${{github.workspace}}/_build/*.zip"
-        tag: 1.1.0
-        token: ${{ secrets.GITHUB_TOKEN }}
-        allowUpdates: tru
+      - name: Build Project
+        run: cmake --build ${{ github.workspace }}/build
+
+      - name: Build tar.gz
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          cd ${{ github.workspace }}/build
+          cpack -G "TGZ"
+          mv *.tar.gz ${{ github.workspace }}/artifacts
+          tree ${{ github.workspace }}/artifacts
+
+      - name: Build deb
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          cd ${{ github.workspace }}/build
+          cpack -G DEB
+          mv *.deb ${{ github.workspace }}/artifacts
+          tree ${{ github.workspace }}/artifacts
+
+      - name: Build rpm
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          cd ${{ github.workspace }}/build
+          cpack -G RPM
+          mv *.rpm ${{ github.workspace }}/artifacts
+          tree ${{ github.workspace }}/artifacts
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: |
+            ${{ github.workspace }}/artifacts
+
+  build_macOS:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Configure Project
+        run: cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -D PRINT_VERSION=${{ github.ref_name#v }}
+
+      - name: Build Project
+        run: cmake --build ${{ github.workspace }}/build
+
+      - name: Build dmg
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          cd ${{ github.workspace }}/build
+          cpack -G DragNDrop
+          mv *.dmg ${{ github.workspace }}/artifacts
+          tree ${{ github.workspace }}/artifacts
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: |
+            ${{ github.workspace }}/artifacts
+
+  build_Windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Configure Project
+        run: cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -D PRINT_VERSION=${{ github.ref_name#v }}
+
+      - name: Build Project
+        run: cmake --build ${{ github.workspace }}/build
+
+      - name: Build msi
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          cd ${{ github.workspace }}/build
+          cpack -G WIX
+          mv *.msi ${{ github.workspace }}/artifacts
+          tree ${{ github.workspace }}/artifacts
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: |
+            ${{ github.workspace }}/artifacts
