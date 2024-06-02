@@ -1,58 +1,46 @@
-name: Test and Pack solver
+name: Pack build
 
 on:
   push:
     branches: [master]
-    tags: ['*', 'v**']
   pull_request:
     branches: [master]
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
+jobs: 
+ build:
+ 
+  runs-on: ubuntu-latest
+  permissions:
+    contents: write
 
-      - name: Set up CMake
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake
+  steps:
+  - uses: actions/checkout@v4
+    
+  - name: Build 
+    run: |
+      cmake -H. -B_build
+      cmake --build _build
+      
+  - name: my_exe
+    run: |
+      echo -e "1\n2\n1" | ${{github.workspace}}/_build/master
+ 
+  - name: package
+    run: cmake --build ${{github.workspace}}/_build --target package
+  
+  - name: package_source
+    run: cmake --build ${{github.workspace}}/_build --target package_source
 
-      - name: Build & Test
-        run: |
-          cmake -H. -B_build
-          cmake --build _build
-          cmake --build _build --target test -- ARGS=--verbose
+  - name: Artifact
+    uses: actions/upload-artifact@v4
+    with:
+        name: master
+        path: ${{github.workspace}}/_build/master
 
-  build_packages:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Configure Solver
-        run: cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -D PRINT_VERSION=${GITHUB_REF_NAME#v}
-
-      - name: Build Solver
-        run: cmake --build ${{ github.workspace }}/build
-
-      - name: Build package
-        run: cmake --build ${{ github.workspace }}/build --target package
-
-      - name: Build source package
-        run: cmake --build ${{ github.workspace }}/build --target package_source
-
-      - name: Make a release
-        uses: ncipollo/release-action@v1.10.0
-        with:
-          artifacts: "build/*.deb,build/*.tar.gz,build/*.zip"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref_name }}
-          allowUpdates: true
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: example
-          path: build/solver
+  - name: Make a release
+    uses: ncipollo/release-action@v1.14.0
+    with:
+        artifacts: "${{github.workspace}}/_build/*.deb,${{github.workspace}}/_build/*.tar.gz,${{github.workspace}}/_build/*.zip"
+        tag: 1.1.0
+        token: ${{ secrets.GITHUB_TOKEN }}
+        allowUpdates: tru
