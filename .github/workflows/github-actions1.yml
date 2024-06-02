@@ -1,0 +1,50 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    env:
+      REF: ${{github.tag}}
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build solver
+      run: |
+        cmake -H. -B_build
+        cmake --build _build
+        echo "REF=${GITHUB_REF#refs/*/}"
+        echo "REF=${{ github.tag_name }}"
+    - name: Build tar.gz
+      if: startsWith(github.tag, 'refs/tags/')
+      run: |
+        cmake -H. -B_build
+        cmake --build _build
+        cd _build
+        cpack -G "TGZ"
+        cd ..
+        mv _build/*.tar.gz artifacts
+        tree artifacts
+    - name: Build deb
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        cmake -H. -B_build
+        cmake --build _build
+        cd _build
+        cpack -G DEB
+        cd ..
+        mv _build/*.deb artifacts
+        tree artifacts
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifacts
+        path: |
+          artifacts
