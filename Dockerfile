@@ -5,7 +5,7 @@ RUN apt install -yy gcc g++ cmake
 
 COPY . /solver
 WORKDIR /solver/solver_application
-
+RUN rm -rf _build
 RUN cmake -H. -B_build
 RUN cmake --build _build
 
