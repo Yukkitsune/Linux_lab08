@@ -18,6 +18,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/solver_lib
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/third-party/CMake-codecov/cmake" ${CMAKE_MODULE_PATH})
 add_library(solver_lib ${CMAKE_CURRENT_SOURCE_DIR}/solver_lib/solver.cpp)
+add_executable(solver ${CMAKE_CURRENT_SOURCE_DIR}/solver_application/equation.cpp)
 add_library(account_lib STATIC ${CMAKE_CURRENT_SOURCE_DIR}/banking/Account.cpp)
 add_library(transaction_lib STATIC ${CMAKE_CURRENT_SOURCE_DIR}/banking/Transaction.cpp)
 
@@ -29,7 +30,7 @@ set_target_properties(gtest PROPERTIES COMPILE_FLAGS "-Wno-error=maybe-uninitial
 
 file(GLOB SRC testing/*.cpp)
 
-add_executable(solver ${CMAKE_CURRENT_SOURCE_DIR}/solver_application/equation.cpp)
+
 add_executable(test1 ${SRC})
 target_link_libraries(test1 gtest gtest_main gmock account_lib transaction_lib)
 add_test(NAME test1 COMMAND test1)
