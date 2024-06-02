@@ -23,7 +23,7 @@ jobs:
       
   - name: executable
     run: |
-      echo -e "1\n2\n1" | ${{github.workspace}}/_build/solve
+      echo -e "1\n2\n1" | ${{github.workspace}}/_build/master
  
   - name: package
     run: cmake --build ${{github.workspace}}/_build --target package
@@ -35,7 +35,7 @@ jobs:
     uses: actions/upload-artifact@v4
     with:
         name: master
-        path: ${{github.workspace}}/_build/solve
+        path: ${{github.workspace}}/_build/master
 
   - name: Make a release
     uses: ncipollo/release-action@v1.14.0
@@ -43,4 +43,4 @@ jobs:
         artifacts: "${{github.workspace}}/_build/*.deb,${{github.workspace}}/_build/*.tar.gz,${{github.workspace}}/_build/*.zip"
         tag: 1.1.0
         token: ${{ secrets.GITHUB_TOKEN }}
-        allowUpdates: tru
+        allowUpdates: true
