@@ -1,5 +1,5 @@
 name: Test and Package bank_lib
-
+run-name: Testing banking files
 on:
   push:
     tags:
