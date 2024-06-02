@@ -1,4 +1,4 @@
-name: Test and Package bank_lib
+name: Test and Pack solver
 
 on:
   push:
@@ -26,13 +26,6 @@ jobs:
           cmake -H. -B_build
           cmake --build _build
           cmake --build _build --target test -- ARGS=--verbose
-
-      - name: Report to Coveralls
-        uses: threeal/gcovr-action@v1.0.0
-        with:
-          excludes: third-party
-          coveralls-send: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   build_packages:
     runs-on: ubuntu-latest
