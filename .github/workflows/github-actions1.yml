@@ -1,46 +1,15 @@
-name: CMake_Build
-
-on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
-
-jobs: 
- build:
- 
-  runs-on: ubuntu-latest
-  permissions:
-    contents: write
-
-  steps:
-  - uses: actions/checkout@v4
-    
-  - name: Build 
-    run: |
-      cmake -H. -B_build
-      cmake --build _build
-      
-  - name: executable
-    run: |
-      echo -e "1\n2\n1" | ${{github.workspace}}/_build/solve
- 
-  - name: package
-    run: cmake --build ${{github.workspace}}/_build --target package
-  
-  - name: package_source
-    run: cmake --build ${{github.workspace}}/_build --target package_source
-
-  - name: Artifact
-    uses: actions/upload-artifact@v4
-    with:
-        name: master
-        path: ${{github.workspace}}/_build/solve
-
-  - name: Make a release
-    uses: ncipollo/release-action@v1.14.0
-    with:
-        artifacts: "${{github.workspace}}/_build/*.deb,${{github.workspace}}/_build/*.tar.gz,${{github.workspace}}/_build/*.zip"
-        tag: 1.1.0
-        token: ${{ secrets.GITHUB_TOKEN }}
-        allowUpdates: true
+name: docker
+run-name: running docker container
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: Build and run in container
+        run: docker build -t solver ${{github.workspace}}
+      - name: Run tests
+        run: docker run -v ${{github.workspace}}/logs:/home/logs solver
+      - name: Check container
+        run: cat ${{github.workspace}}/logs/log.txt

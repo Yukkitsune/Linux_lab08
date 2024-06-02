@@ -1,19 +1,16 @@
-FROM ubuntu:18.04
+FROM ubuntu:latest
 
 RUN apt update
 RUN apt install -yy gcc g++ cmake
 
-COPY . print/
-WORKDIR print
+COPY . /solver
+WORKDIR /solver/solver_application
 
 RUN cmake -H. -B_build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=_install
 RUN cmake --build _build
-RUN cmake --build _build --target install
 
 ENV LOG_PATH /home/logs/log.txt
 
 VOLUME /home/logs
 
-WORKDIR _install/bin
-
-ENTRYPOINT ./demo
+ENTRYPOINT ["sh", "-c", "echo '1\n2\n3\n' | ./_build/main >> /home/logs/log.txt"]
