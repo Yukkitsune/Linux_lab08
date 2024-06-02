@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.13)
 project(solver)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -21,4 +22,4 @@ install(TARGETS solver
     RUNTIME DESTINATION bin
 )
 
-include(CPack.cmake)
+include(CPackConfig.cmake)
