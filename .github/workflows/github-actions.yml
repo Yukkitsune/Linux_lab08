@@ -1,113 +1,87 @@
-name: C/C++ CI
+name: Pack things
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  tags:
-    - 'v*.*.*.*'
+    tags:
+      - 'v*.*.*.*'
 
 jobs:
-  build_Linux:
+  build:
     runs-on: ubuntu-latest
     env:
-      REF: ${{ github.ref }}
-
+      REF: ${{github.ref}}
     steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Configure Project
-        run: cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -D PRINT_VERSION=${{ github.ref_name#v }}
-
-      - name: Build Project
-        run: cmake --build ${{ github.workspace }}/build
-
-      - name: Build tar.gz
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          cd ${{ github.workspace }}/build
-          cpack -G "TGZ"
-          mv *.tar.gz ${{ github.workspace }}/artifacts
-          tree ${{ github.workspace }}/artifacts
-
-      - name: Build deb
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          cd ${{ github.workspace }}/build
-          cpack -G DEB
-          mv *.deb ${{ github.workspace }}/artifacts
-          tree ${{ github.workspace }}/artifacts
-
-      - name: Build rpm
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          cd ${{ github.workspace }}/build
-          cpack -G RPM
-          mv *.rpm ${{ github.workspace }}/artifacts
-          tree ${{ github.workspace }}/artifacts
-
-      - name: Archive artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: artifacts
-          path: |
-            ${{ github.workspace }}/artifacts
-
-  build_macOS:
-    runs-on: macos-latest
+    - uses: actions/checkout@v3
+    - name: Build tar.gz
+      run: |
+        cmake -H. -B_build
+        cmake --build _build
+        cd _build
+        cpack -G "TGZ"
+        cd ..
+        mv _build/*.tar.gz artifacts
+        tree artifacts
+    - name: Build deb
+      run: |
+        cmake -H. -B_build
+        cmake --build _build
+        cd _build
+        cpack -G DEB
+        cd ..
+        mv _build/*.deb artifacts
+        tree artifacts
+    - name: Build rpm
+      run: |
+        cmake -H. -B_build
+        cmake --build _build
+        cd build
+        cpack -G RPM
+        cd ..
+        mv _build/*.rpm artifacts
+        tree artifacts
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifacts
+        path: |
+          artifacts
+              
+  build2:
+    runs-on: osx
     steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+    - uses: actions/checkout@v3
+    - name: Build dmg
+      run: |
+        cmake -H. -B_build
+        cmake --build _build
+        cd _build
+        cpack -G DragNDrop
+        cd ..
+        mv _build/*.dmg artifacts
+        tree artifacts
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifacts
+        path: |
+          artifacts
 
-      - name: Configure Project
-        run: cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -D PRINT_VERSION=${{ github.ref_name#v }}
-
-      - name: Build Project
-        run: cmake --build ${{ github.workspace }}/build
-
-      - name: Build dmg
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          cd ${{ github.workspace }}/build
-          cpack -G DragNDrop
-          mv *.dmg ${{ github.workspace }}/artifacts
-          tree ${{ github.workspace }}/artifacts
-
-      - name: Archive artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: artifacts
-          path: |
-            ${{ github.workspace }}/artifacts
-
-  build_Windows:
+  build3:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Configure Project
-        run: cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -D PRINT_VERSION=${{ github.ref_name#v }}
-
-      - name: Build Project
-        run: cmake --build ${{ github.workspace }}/build
-
-      - name: Build msi
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          cd ${{ github.workspace }}/build
-          cpack -G WIX
-          mv *.msi ${{ github.workspace }}/artifacts
-          tree ${{ github.workspace }}/artifacts
-
-      - name: Archive artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: artifacts
-          path: |
-            ${{ github.workspace }}/artifacts
+    - uses: actions/checkout@v3
+    - name: Build msi
+      run: |
+        cmake -H. -B_build
+        cmake --build _build
+        cd _build
+        cpack -G WIX
+        cd ..
+        mv _build/*.msi artifacts
+        tree artifacts
+    - name: Archive artifacts
+      uses: actions/upload-artifacts@v4
+      with:
+        name: artifacts
+        path: |
+          artifacts
