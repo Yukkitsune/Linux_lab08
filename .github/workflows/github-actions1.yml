@@ -1,50 +1,46 @@
-name: C/C++ CI
+name: CMake_Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [master]
   pull_request:
-    branches: [ "main" ]
+    branches: [master]
 
-jobs:
-  build:
+jobs: 
+ build:
+ 
+  runs-on: ubuntu-latest
+  permissions:
+    contents: write
 
-    runs-on: ubuntu-latest
+  steps:
+  - uses: actions/checkout@v4
+    
+  - name: Build 
+    run: |
+      cmake -H. -B_build
+      cmake --build _build
+      
+  - name: my_exe
+    run: |
+      echo -e "1\n2\n1" | ${{github.workspace}}/_build/master
+ 
+  - name: package
+    run: cmake --build ${{github.workspace}}/_build --target package
+  
+  - name: package_source
+    run: cmake --build ${{github.workspace}}/_build --target package_source
 
-    env:
-      REF: ${{github.tag}}
+  - name: Artifact
+    uses: actions/upload-artifact@v4
+    with:
+        name: master
+        path: ${{github.workspace}}/_build/master
 
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build solver
-      run: |
-        cmake -H. -B_build
-        cmake --build _build
-        echo "REF=${GITHUB_REF#refs/*/}"
-        echo "REF=${{ github.tag_name }}"
-    - name: Build tar.gz
-      if: startsWith(github.tag, 'refs/tags/')
-      run: |
-        cmake -H. -B_build
-        cmake --build _build
-        cd _build
-        cpack -G "TGZ"
-        cd ..
-        mv _build/*.tar.gz artifacts
-        tree artifacts
-    - name: Build deb
-      if: startsWith(github.ref, 'refs/tags/')
-      run: |
-        cmake -H. -B_build
-        cmake --build _build
-        cd _build
-        cpack -G DEB
-        cd ..
-        mv _build/*.deb artifacts
-        tree artifacts
-    - name: Archive artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: artifacts
-        path: |
-          artifacts
+  - name: Make a release
+    uses: ncipollo/release-action@v1.14.0
+    with:
+        artifacts: "${{github.workspace}}/_build/*.deb,${{github.workspace}}/_build/*.tar.gz,${{github.workspace}}/_build/*.zip"
+        tag: 1.1.0
+        token: ${{ secrets.GITHUB_TOKEN }}
+        allowUpdates: tru

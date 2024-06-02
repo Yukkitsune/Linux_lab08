@@ -1,14 +1,18 @@
 cmake_minimum_required(VERSION 3.13)
 
-project(formatter_ex_lib)
+project(formatter_ex)
 
-set(SOURCE_LIB formatter_ex.cpp)
+set(CMAKE_CXX_STANDART 20)
+set(CMAKE_CXX_STANDART_REQUIRED ON)
+set(CMAKE_CURRENT_SOURCE_DIR /home/kitsune/Yukkitsune/workspace/projects/lab06/formatter_ex_lib)
 
-add_library(formatter_ex_lib STATIC ${SOURCE_LIB})
+add_library(formatter_ex STATIC formatter_ex.cpp)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../formatter_lib formatter_lib)
+add_subdirectory("../formatter_lib" formatter)
 
-target_link_libraries(formatter_ex_lib PUBLIC formatter_lib)
-target_include_directories(formatter_ex_lib PUBLIC
-				"${CMAKE_CURRENT_SOURCE_DIR}"
-				"${CMAKE_CURRENT_SOURCE_DIR}/../formatter_lib")
+target_link_libraries(formatter_ex PUBLIC formatter)
+target_include_directories(formatter_ex PUBLIC
+				"../formatter_ex_lib"
+				"../formatter_lib")
+
+target_include_directories(formatter_ex PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}) 
