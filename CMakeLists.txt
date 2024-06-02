@@ -34,3 +34,4 @@ list(APPEND LCOV_REMOVE_PATTERNS "'${PROJECT_SOURCE_DIR}/testing/test*'")
 coverage_evaluate()
 
 include(CPackConfig.cmake)
+

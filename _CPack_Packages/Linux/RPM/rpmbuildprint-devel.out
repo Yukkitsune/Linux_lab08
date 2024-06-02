@@ -1,0 +1,13 @@
+Платформы для сборки: x86_64
+Сборка для платформы x86_64
+setting SOURCE_DATE_EPOCH=1717286400
+Выполняется(%prep): /bin/sh -e /var/tmp/rpm-tmp.T4AM1m
+Выполняется(%install): /bin/sh -e /var/tmp/rpm-tmp.ZqWPRV
+Processing files: print-devel-1.14.0-1.x86_64
+Provides: cmake(GTest) = 1.14.0 cmake(gtest) = 1.14.0 pkgconfig(gmock) = 1.14.0 pkgconfig(gmock_main) = 1.14.0 pkgconfig(gtest) = 1.14.0 pkgconfig(gtest_main) = 1.14.0 print-devel = 1.14.0-1 print-devel(x86-64) = 1.14.0-1
+Requires(rpmlib): rpmlib(CompressedFileNames) <= 3.0.4-1 rpmlib(FileDigests) <= 4.6.0-1 rpmlib(PayloadFilesHavePrefix) <= 4.0-1
+Requires: /usr/bin/pkg-config cmake-filesystem(x86-64) pkgconfig(gmock) = 1.14.0 pkgconfig(gtest) = 1.14.0
+Проверка на неупакованный(е) файл(ы): /usr/lib/rpm/check-files /home/kitsune/Yukkitsune/workspace/projects/lab06/_CPack_Packages/Linux/RPM/bank_lib-1.14.0-Linux
+Записан: /home/kitsune/Yukkitsune/workspace/projects/lab06/_CPack_Packages/Linux/RPM/RPMS/bank_lib-1.14.0-Linux.rpm
+Выполняется(%clean): /bin/sh -e /var/tmp/rpm-tmp.0qnKDe
+Выполняется(rmbuild): /bin/sh -e /var/tmp/rpm-tmp.qXm0to

@@ -1,22 +1,96 @@
-name: Test bank
-run-name: Testing banking files
-on: [push]
+name: Test and Package bank_lib
+
+on:
+  push:
+    tags:
+      - '*'
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Build & test
+
+      - name: Set up CMake
+        uses: lukka/get-cmake@v3
+
+      - name: Build & Test
         run: |
           cmake -H. -B_build
           cmake --build _build
           cmake --build _build --target test -- ARGS=--verbose
+
       - name: Report to Coveralls
         uses: threeal/gcovr-action@v1.0.0
         with:
           excludes: third-party
           coveralls-send: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  package:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up CMake
+        uses: lukka/get-cmake@v3
+
+      - name: Build project
+        run: |
+          cmake -H. -B_build
+          cmake --build _build
+
+      - name: Package project for Debian
+        if: startsWith(github.ref, 'refs/tags/')
+        run: cpack -G DEB --config _build/CPackConfig.cmake
+
+      - name: Package project for RPM
+        if: startsWith(github.ref, 'refs/tags/')
+        run: cpack -G RPM --config _build/CPackConfig.cmake
+
+      - name: Package project for MacOS
+        if: startsWith(github.ref, 'refs/tags/')
+        run: cpack -G DragNDrop --config _build/CPackConfig.cmake
+
+      - name: Upload Release Assets
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: _build/*.tar.gz
+          asset_name: source-code.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload Release Assets - DEB
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: _build/*.deb
+          asset_name: package.deb
+          asset_content_type: application/x-debian-package
+
+      - name: Upload Release Assets - RPM
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: _build/*.rpm
+          asset_name: package.rpm
+          asset_content_type: application/x-rpm
+
+      - name: Upload Release Assets - DMG
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: _build/*.dmg
+          asset_name: package.dmg
+          asset_content_type: application/x-apple-diskimage
