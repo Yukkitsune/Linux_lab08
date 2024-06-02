@@ -1,22 +1,24 @@
-cmake_minimum_required(VERSION 3.13)
+project(solver)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(solve_equasion)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/formatter_ex_lib formatter_ex_new_name)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/formatter_ex_lib formatter_ex_lib_dir)
 
-target_include_directories(formatter_ex PUBLIC formatter_ex_lib formatter_lib hello_world_application solver_lib)
-
-add_library(solver ${CMAKE_CURRENT_SOURCE_DIR}/solver_lib/solver.cpp)
-
+add_library(solver_lib ${CMAKE_CURRENT_SOURCE_DIR}/solver_lib/solver.cpp)
 add_executable(solver ${CMAKE_CURRENT_SOURCE_DIR}/solver_application/equation.cpp)
 
-target_link_libraries(solver formatter formatter_ex solver)
-
-install(TARGETS solver
-RUNTIME DESTINATION bin
+target_include_directories(formatter_ex_lib PUBLIC
+${CMAKE_CURRENT_SOURCE_DIR}/formatter_lib
+${CMAKE_CURRENT_SOURCE_DIR}/formatter_ex_lib
+${CMAKE_CURRENT_SOURCE_DIR}/solver_lib
 )
 
-include(CPackConfig.cmake)
+target_link_libraries(solver formatter_ex_lib formatter_lib solver_lib)
+
+install(TARGETS solver
+    RUNTIME DESTINATION bin
+)
+
+include(CPack.cmake)
