@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure Solver
-        run: cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -D PRINT_VERSION=${{ github.ref_name#v }}
+        run: cmake ${{ github.workspace }} -B ${{ github.workspace }}/build -D PRINT_VERSION=${GITHUB_REF_NAME#v}
 
       - name: Build Solver
         run: cmake --build ${{ github.workspace }}/build
