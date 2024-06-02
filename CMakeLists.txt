@@ -32,3 +32,5 @@ find_package(codecov)
 add_coverage(test1)
 list(APPEND LCOV_REMOVE_PATTERNS "'${PROJECT_SOURCE_DIR}/testing/test*'")
 coverage_evaluate()
+
+include(CPackConfig.cmake)

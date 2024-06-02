@@ -7,4 +7,4 @@
     * Покрытие кода должно составлять 100%.
 3. Настройте сборочную процедуру на **Github Actions**.
 4. Настройте [Coveralls.io](https://coveralls.io/).
-Результат Coveralls : [![Coverage Status](https://coveralls.io/repos/github/Yukkitsune/lab05_v2/badge.svg?branch=main)](https://coveralls.io/github/Yukkitsune/lab05_v2?branch=main)
+Результат Coveralls : [![Coverage Status](https://coveralls.io/repos/github/Yukkitsune/lab06_v2/badge.svg?branch=main)](https://coveralls.io/github/Yukkitsune/lab06_v2?branch=main)
